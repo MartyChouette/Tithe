@@ -1,0 +1,64 @@
+using System.Collections;
+using UnityEngine;
+
+public class MaskAttackAnimator : MonoBehaviour
+{
+    [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private Transform maskMount;
+    [SerializeField] private Transform[] enemyTargets;
+    [SerializeField] private float attackSpeed = 8f;
+    [SerializeField] private float returnSpeed = 6f;
+
+    private GameObject activeMaskInstance;
+
+    public void SpawnMask()
+    {
+        ClearMask();
+        if (playerStats.EquippedMask != null && playerStats.EquippedMask.modelPrefab != null)
+        {
+            activeMaskInstance = Instantiate(playerStats.EquippedMask.modelPrefab, maskMount);
+            activeMaskInstance.transform.localPosition = Vector3.zero;
+            activeMaskInstance.transform.localRotation = Quaternion.identity;
+        }
+    }
+
+    public void ClearMask()
+    {
+        if (activeMaskInstance != null)
+        {
+            Destroy(activeMaskInstance);
+            activeMaskInstance = null;
+        }
+    }
+
+    public IEnumerator PlayAttack(int targetIndex)
+    {
+        if (activeMaskInstance == null || targetIndex >= enemyTargets.Length)
+            yield break;
+
+        Vector3 startPos = activeMaskInstance.transform.position;
+        Vector3 targetPos = enemyTargets[targetIndex].position;
+
+        // Lunge toward enemy
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * attackSpeed;
+            activeMaskInstance.transform.position = Vector3.Lerp(startPos, targetPos, t);
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        // Return to mount
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * returnSpeed;
+            activeMaskInstance.transform.position = Vector3.Lerp(targetPos, startPos, t);
+            yield return null;
+        }
+
+        activeMaskInstance.transform.position = startPos;
+    }
+}
