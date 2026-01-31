@@ -27,10 +27,6 @@ public class AdvancedGridMovement : MonoBehaviour
     [SerializeField] private float walkSpeed = 1.0f;
     [SerializeField] private float turnSpeed = 5.0f;
 
-    [Header("Snappy movement override")]
-    [Tooltip("Override serialized curves/speeds with snappier stop-start feel")]
-    [SerializeField] private bool useSnappyMovement = true;
-
     [Header("Walking animation curve")]
     [SerializeField] private AnimationCurve walkSpeedCurve;
 
@@ -82,53 +78,10 @@ public class AdvancedGridMovement : MonoBehaviour
     {
         moveTowardsPosition = transform.position;
         rotateTowardsDirection = transform.rotation;
-
-        if (useSnappyMovement)
-        {
-            ApplySnappyDefaults();
-        }
-
         currentAnimationCurve = walkSpeedCurve;
         currentHeadBobCurve = walkHeadBobCurve;
         currentSpeed = walkSpeed;
         stepTime = 1.0f / gridSize;
-    }
-
-    private void ApplySnappyDefaults()
-    {
-        // Faster tile traversal and turning
-        walkSpeed = 2.5f;
-        runningSpeed = 3.5f;
-        turnSpeed = 10.0f;
-
-        // Steep S-curve: quick acceleration, brief cruise, quick deceleration.
-        // Tangents of 3 give a noticeable "pop" off the start and a firm stop.
-        walkSpeedCurve = new AnimationCurve(
-            new Keyframe(0f, 0f, 0f, 3f),
-            new Keyframe(1f, 1f, 3f, 0f)
-        );
-
-        runningSpeedCurve = new AnimationCurve(
-            new Keyframe(0f, 0f, 0f, 3f),
-            new Keyframe(1f, 1f, 3f, 0f)
-        );
-
-        // Subtle head bob — keep it short so the snap isn't softened
-        walkHeadBobCurve = new AnimationCurve(
-            new Keyframe(0f, 0f),
-            new Keyframe(0.25f, 0.04f),
-            new Keyframe(0.5f, 0f),
-            new Keyframe(0.75f, 0.04f),
-            new Keyframe(1f, 0f)
-        );
-
-        runningHeadBobCurve = new AnimationCurve(
-            new Keyframe(0f, 0f),
-            new Keyframe(0.25f, 0.06f),
-            new Keyframe(0.5f, 0f),
-            new Keyframe(0.75f, 0.06f),
-            new Keyframe(1f, 0f)
-        );
     }
 
     void Update()
