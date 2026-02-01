@@ -56,6 +56,14 @@ public class CombatUI : MonoBehaviour
     // Wire to Fight button OnClick
     public void OnFightPressed()
     {
+        MoveData[] moves = playerStats.GetAvailableMoves();
+        if (moves == null || moves.Length == 0)
+        {
+            actionMenuPanel.SetActive(false);
+            ShowMessage("No moves available!");
+            StartCoroutine(ReturnToActionMenuAfterDelay(1f));
+            return;
+        }
         actionMenuPanel.SetActive(false);
         ShowMoveList();
     }

@@ -99,6 +99,7 @@ public class GameManager : MonoBehaviour
 
     public void DescendToNextFloor()
     {
+        if (floors == null) return;
         if (CurrentFloorIndex < floors.Length - 1)
         {
             CurrentFloorIndex++;

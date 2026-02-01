@@ -42,7 +42,7 @@ public class CombatEnemy
             attack = data.attack,
             defense = data.defense,
             speed = data.speed,
-            moves = (MoveData[])data.moves.Clone(),
+            moves = data.moves != null ? (MoveData[])data.moves.Clone() : new MoveData[0],
             isBoss = false,
             maskDrop = null
         };
@@ -60,7 +60,7 @@ public class CombatEnemy
             attack = data.attack,
             defense = data.defense,
             speed = data.speed,
-            moves = (MoveData[])data.moves.Clone(),
+            moves = data.moves != null ? (MoveData[])data.moves.Clone() : new MoveData[0],
             isBoss = true,
             maskDrop = data
         };
@@ -85,6 +85,11 @@ public class CombatManager : MonoBehaviour
     public void BeginCombat(EnemyData[] enemyDatas)
     {
         Enemies.Clear();
+        if (enemyDatas == null || enemyDatas.Length == 0)
+        {
+            Debug.LogError("[CombatManager] BeginCombat called with null or empty enemyDatas.");
+            return;
+        }
         foreach (var data in enemyDatas)
             Enemies.Add(CombatEnemy.FromEnemyData(data));
         StartCombatSequence();
@@ -186,7 +191,7 @@ public class CombatManager : MonoBehaviour
                 }
             }
         }
-        else
+        else if (targetIndex >= 0 && targetIndex < Enemies.Count)
         {
             yield return maskAttackAnimator.PlayAttack(targetIndex);
             ApplyDamageToEnemy(move, targetIndex);
