@@ -169,6 +169,13 @@ public class CombatUI : MonoBehaviour
 
     private void OnTargetSelected(int index)
     {
+        var enemies = combatManager.Enemies;
+        if (index < 0 || index >= enemies.Count || enemies[index].IsDead)
+        {
+            ShowTargetSelection();
+            return;
+        }
+
         targetPanel.SetActive(false);
         combatManager.OnPlayerMove(selectedMove, index);
     }

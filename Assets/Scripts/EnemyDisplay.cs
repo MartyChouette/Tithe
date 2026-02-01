@@ -44,7 +44,7 @@ public class EnemyDisplay : MonoBehaviour
 
     public void PlayDeath(int index)
     {
-        if (index < enemySlots.Length)
+        if (index >= 0 && index < enemySlots.Length)
             enemySlots[index].color = new Color(1f, 1f, 1f, 0.3f);
     }
 

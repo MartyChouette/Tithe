@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public enum CombatState
@@ -154,6 +153,20 @@ public class CombatManager : MonoBehaviour
         {
             return false;
         }
+
+        int maxEnemySpeed = 0;
+        foreach (var e in Enemies)
+        {
+            if (!e.IsDead && e.speed > maxEnemySpeed)
+                maxEnemySpeed = e.speed;
+        }
+
+        float fleeChance = Mathf.Clamp(0.5f + (playerStats.Speed - maxEnemySpeed) * 0.02f, 0.3f, 0.9f);
+        if (Random.value > fleeChance)
+        {
+            return false;
+        }
+
         State = CombatState.Fled;
         return true;
     }
@@ -198,10 +211,22 @@ public class CombatManager : MonoBehaviour
 
     private IEnumerator ExecuteEnemyTurns()
     {
-        var sorted = Enemies.Where(e => !e.IsDead).OrderByDescending(e => e.speed).ToList();
-
-        foreach (var enemy in sorted)
+        var alive = new List<CombatEnemy>();
+        foreach (var e in Enemies)
         {
+            if (!e.IsDead)
+                alive.Add(e);
+        }
+        alive.Sort((a, b) => b.speed.CompareTo(a.speed));
+
+        foreach (var enemy in alive)
+        {
+            if (enemy.moves == null || enemy.moves.Length == 0)
+            {
+                Debug.LogWarning($"[CombatManager] Enemy '{enemy.name}' has no moves, skipping turn.");
+                continue;
+            }
+
             var move = enemy.moves[Random.Range(0, enemy.moves.Length)];
             Element playerElement = playerStats.EquippedMask != null
                 ? playerStats.EquippedMask.element

@@ -16,6 +16,9 @@ public class HUD : MonoBehaviour
 
     public void Refresh()
     {
+        if (GameManager.Instance == null || GameManager.Instance.CurrentFloor == null)
+            return;
+
         hudPanel.SetActive(true);
         hpText.text = $"HP: {playerStats.CurrentHP}/{playerStats.MaxHP}";
         maskText.text = playerStats.EquippedMask != null

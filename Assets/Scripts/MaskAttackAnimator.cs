@@ -33,7 +33,10 @@ public class MaskAttackAnimator : MonoBehaviour
 
     public IEnumerator PlayAttack(int targetIndex)
     {
-        if (activeMaskInstance == null || targetIndex >= enemyTargets.Length)
+        if (activeMaskInstance == null || enemyTargets == null || targetIndex < 0 || targetIndex >= enemyTargets.Length)
+            yield break;
+
+        if (enemyTargets[targetIndex] == null)
             yield break;
 
         Vector3 startPos = activeMaskInstance.transform.position;
