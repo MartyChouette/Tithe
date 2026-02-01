@@ -18,6 +18,12 @@ public class PlayerStats : MonoBehaviour
 
     void Start()
     {
+        if (CurrentHP <= 0)
+            CurrentHP = MaxHP;
+    }
+
+    public void Initialize()
+    {
         CurrentHP = MaxHP;
     }
 

@@ -9,6 +9,15 @@ public class HUD : MonoBehaviour
     [SerializeField] private Text floorText;
     [SerializeField] private PlayerStats playerStats;
 
+    public void Initialize(PlayerStats stats, GameObject panel, Text hp, Text mask, Text floor)
+    {
+        playerStats = stats;
+        hudPanel = panel;
+        hpText = hp;
+        maskText = mask;
+        floorText = floor;
+    }
+
     public void SetVisible(bool visible)
     {
         hudPanel.SetActive(visible);

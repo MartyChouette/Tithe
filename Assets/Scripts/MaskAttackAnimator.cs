@@ -11,6 +11,13 @@ public class MaskAttackAnimator : MonoBehaviour
 
     private GameObject activeMaskInstance;
 
+    public void Initialize(PlayerStats stats, Transform mount, Transform[] targets)
+    {
+        playerStats = stats;
+        maskMount = mount;
+        enemyTargets = targets;
+    }
+
     public void SpawnMask()
     {
         ClearMask();

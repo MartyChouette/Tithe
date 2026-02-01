@@ -34,6 +34,36 @@ public class CombatUI : MonoBehaviour
 
     private MoveData selectedMove;
 
+    public void Initialize(CombatManager manager, PlayerStats stats)
+    {
+        combatManager = manager;
+        playerStats = stats;
+    }
+
+    public void SetPanels(GameObject combat, GameObject actionMenu, GameObject moveList,
+        GameObject target, GameObject message, Text hpText, Text maskText, Text msgText)
+    {
+        combatPanel = combat;
+        actionMenuPanel = actionMenu;
+        moveListPanel = moveList;
+        targetPanel = target;
+        messagePanel = message;
+        playerHPText = hpText;
+        playerMaskText = maskText;
+        messageText = msgText;
+    }
+
+    public void SetButtons(Button[] moveBtns, Text[] moveBtnTexts, Button moveBack,
+        Button[] targetBtns, Text[] targetBtnTexts, Button targetBack)
+    {
+        moveButtons = moveBtns;
+        moveButtonTexts = moveBtnTexts;
+        moveBackButton = moveBack;
+        targetButtons = targetBtns;
+        targetButtonTexts = targetBtnTexts;
+        targetBackButton = targetBack;
+    }
+
     public void Show()
     {
         combatPanel.SetActive(true);
