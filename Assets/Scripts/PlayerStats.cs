@@ -23,9 +23,13 @@ public class PlayerStats : MonoBehaviour
 
     public void EquipMask(MaskData mask)
     {
+        int oldMax = MaxHP;
         EquippedMask = mask;
-        if (CurrentHP > MaxHP)
-            CurrentHP = MaxHP;
+        int newMax = MaxHP;
+        if (oldMax > 0)
+            CurrentHP = Mathf.Clamp(Mathf.RoundToInt((float)CurrentHP / oldMax * newMax), 1, newMax);
+        else
+            CurrentHP = newMax;
     }
 
     public MoveData[] GetAvailableMoves()

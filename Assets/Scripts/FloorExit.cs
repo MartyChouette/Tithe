@@ -32,7 +32,7 @@ public class FloorExit : MonoBehaviour
     {
         if (isLocked) return;
         if (!other.CompareTag("Player")) return;
-        if (GameManager.Instance.State != GameState.Exploring) return;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Exploring) return;
 
         GameManager.Instance.DescendToNextFloor();
     }

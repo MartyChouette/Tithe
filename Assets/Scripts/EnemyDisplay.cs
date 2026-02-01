@@ -50,7 +50,11 @@ public class EnemyDisplay : MonoBehaviour
 
     public void Clear()
     {
+        if (enemySlots == null) return;
         foreach (var slot in enemySlots)
-            slot.gameObject.SetActive(false);
+        {
+            if (slot != null)
+                slot.gameObject.SetActive(false);
+        }
     }
 }

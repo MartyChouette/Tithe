@@ -15,7 +15,7 @@ public class BossEncounter : MonoBehaviour
     {
         if (defeated) return;
         if (!other.CompareTag("Player")) return;
-        if (GameManager.Instance.State != GameState.Exploring) return;
+        if (GameManager.Instance == null || GameManager.Instance.State != GameState.Exploring) return;
 
         if (bossMask == null)
         {
