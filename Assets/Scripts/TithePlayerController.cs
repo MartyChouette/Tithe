@@ -12,6 +12,11 @@ public class TithePlayerController : MonoBehaviour
     void Start()
     {
         movement = GetComponent<AdvancedGridMovement>();
+        if (movement == null)
+        {
+            Debug.LogError($"[TithePlayerController] AdvancedGridMovement not found on {gameObject.name}. Disabling controller.");
+            enabled = false;
+        }
     }
 
     void Update()

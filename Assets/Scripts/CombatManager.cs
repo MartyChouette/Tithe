@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum CombatState
@@ -42,7 +43,7 @@ public class CombatEnemy
             attack = data.attack,
             defense = data.defense,
             speed = data.speed,
-            moves = data.moves,
+            moves = (MoveData[])data.moves.Clone(),
             isBoss = false,
             maskDrop = null
         };
@@ -60,7 +61,7 @@ public class CombatEnemy
             attack = data.attack,
             defense = data.defense,
             speed = data.speed,
-            moves = data.moves,
+            moves = (MoveData[])data.moves.Clone(),
             isBoss = true,
             maskDrop = data
         };
@@ -76,6 +77,11 @@ public class CombatManager : MonoBehaviour
 
     public CombatState State { get; private set; }
     public List<CombatEnemy> Enemies { get; private set; } = new List<CombatEnemy>();
+
+    public static int CalcDamage(int attackStat, int movePower, int defenseStat, float multiplier)
+    {
+        return Mathf.Max(1, Mathf.RoundToInt((attackStat + movePower - defenseStat) * multiplier));
+    }
 
     public void BeginCombat(EnemyData[] enemyDatas)
     {
@@ -142,14 +148,14 @@ public class CombatManager : MonoBehaviour
         StartCoroutine(ExecutePlayerAttack(move, targetIndex));
     }
 
-    public void OnPlayerFlee()
+    public bool OnPlayerFlee()
     {
         if (Enemies.Exists(e => e.isBoss))
         {
-            combatUI.ShowMessage("Can't flee from this.");
-            return;
+            return false;
         }
         State = CombatState.Fled;
+        return true;
     }
 
     private IEnumerator ExecutePlayerAttack(MoveData move, int targetIndex)
@@ -181,10 +187,10 @@ public class CombatManager : MonoBehaviour
     {
         var enemy = Enemies[targetIndex];
         float multiplier = ElementChart.GetMultiplier(move.element, enemy.element);
-        int damage = Mathf.Max(1, Mathf.RoundToInt((playerStats.Attack + move.power - enemy.defense) * multiplier));
+        int damage = CalcDamage(playerStats.Attack, move.power, enemy.defense, multiplier);
         enemy.currentHP = Mathf.Max(0, enemy.currentHP - damage);
 
-        combatUI.ShowDamage(damage, multiplier > 1f, targetIndex);
+        combatUI.ShowDamage(damage, multiplier, targetIndex);
 
         if (enemy.IsDead)
             enemyDisplay.PlayDeath(targetIndex);
@@ -192,16 +198,16 @@ public class CombatManager : MonoBehaviour
 
     private IEnumerator ExecuteEnemyTurns()
     {
-        foreach (var enemy in Enemies)
-        {
-            if (enemy.IsDead) continue;
+        var sorted = Enemies.Where(e => !e.IsDead).OrderByDescending(e => e.speed).ToList();
 
+        foreach (var enemy in sorted)
+        {
             var move = enemy.moves[Random.Range(0, enemy.moves.Length)];
             Element playerElement = playerStats.EquippedMask != null
                 ? playerStats.EquippedMask.element
                 : Element.None;
             float multiplier = ElementChart.GetMultiplier(move.element, playerElement);
-            int damage = Mathf.Max(1, Mathf.RoundToInt((enemy.attack + move.power - playerStats.Defense) * multiplier));
+            int damage = CalcDamage(enemy.attack, move.power, playerStats.Defense, multiplier);
 
             playerStats.TakeDamage(damage);
             combatUI.ShowEnemyAttack(enemy.name, move.moveName, damage);
@@ -236,6 +242,9 @@ public class CombatManager : MonoBehaviour
 
         if (State == CombatState.Victory)
         {
+            // Heal 25% HP on victory
+            playerStats.Heal(Mathf.RoundToInt(playerStats.MaxHP * 0.25f));
+
             if (droppedMask != null)
                 GameManager.Instance.BossDefeated(droppedMask);
             else

@@ -14,8 +14,10 @@ public class BossEncounter : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (defeated) return;
+        if (!other.CompareTag("Player")) return;
         if (GameManager.Instance.State != GameState.Exploring) return;
 
+        GameManager.Instance.SetActiveBossEncounter(this);
         GameManager.Instance.StartBossCombat(bossMask);
     }
 

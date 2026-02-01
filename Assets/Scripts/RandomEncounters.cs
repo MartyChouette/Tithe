@@ -14,6 +14,7 @@ public class RandomEncounters : MonoBehaviour
         if (GameManager.Instance.State != GameState.Exploring) return;
 
         FloorData floor = GameManager.Instance.CurrentFloor;
+        if (floor.enemyTable == null || floor.enemyTable.Length == 0) return;
         if (Random.value > floor.encounterRate) return;
 
         int count = Random.Range(minEnemies, maxEnemies + 1);
