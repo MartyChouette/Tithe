@@ -170,7 +170,7 @@ public class DungeonGenerator : MonoBehaviour
         go.transform.position = pos;
         go.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
         go.transform.localScale = new Vector3(GRID, GRID, 1f);
-        go.GetComponent<Renderer>().material.color = color;
+        SetMaterialColor(go.GetComponent<Renderer>(), color);
         // Remove collider so player doesn't collide with floor
         var col = go.GetComponent<Collider>();
         if (col != null) Destroy(col);
@@ -203,7 +203,7 @@ public class DungeonGenerator : MonoBehaviour
         go.tag = "Level";
         go.transform.position = pos;
         go.transform.localScale = scale;
-        go.GetComponent<Renderer>().material.color = color;
+        SetMaterialColor(go.GetComponent<Renderer>(), color);
         spawnedObjects.Add(go);
     }
 
@@ -224,7 +224,7 @@ public class DungeonGenerator : MonoBehaviour
         pedestal.transform.SetParent(go.transform);
         pedestal.transform.localPosition = new Vector3(0, 0.25f, 0);
         pedestal.transform.localScale = new Vector3(0.8f, 0.5f, 0.8f);
-        pedestal.GetComponent<Renderer>().material.color = accentColor;
+        SetMaterialColor(pedestal.GetComponent<Renderer>(), accentColor);
         // Remove pedestal collider so it doesn't block movement
         var pedestalCol = pedestal.GetComponent<Collider>();
         if (pedestalCol != null) Destroy(pedestalCol);
@@ -249,7 +249,7 @@ public class DungeonGenerator : MonoBehaviour
         locked.transform.SetParent(go.transform);
         locked.transform.localPosition = new Vector3(0, 0.5f, 0);
         locked.transform.localScale = new Vector3(1f, 1f, 1f);
-        locked.GetComponent<Renderer>().material.color = new Color(0.6f, 0.1f, 0.1f);
+        SetMaterialColor(locked.GetComponent<Renderer>(), new Color(0.6f, 0.1f, 0.1f));
         var lockedCol = locked.GetComponent<Collider>();
         if (lockedCol != null) Destroy(lockedCol);
 
@@ -259,7 +259,7 @@ public class DungeonGenerator : MonoBehaviour
         unlocked.transform.SetParent(go.transform);
         unlocked.transform.localPosition = new Vector3(0, 0.5f, 0);
         unlocked.transform.localScale = new Vector3(1f, 1f, 1f);
-        unlocked.GetComponent<Renderer>().material.color = accentColor;
+        SetMaterialColor(unlocked.GetComponent<Renderer>(), accentColor);
         var unlockedCol = unlocked.GetComponent<Collider>();
         if (unlockedCol != null) Destroy(unlockedCol);
 
@@ -282,10 +282,19 @@ public class DungeonGenerator : MonoBehaviour
 
         Color darkCeiling = color * 0.5f;
         darkCeiling.a = 1f;
-        go.GetComponent<Renderer>().material.color = darkCeiling;
+        SetMaterialColor(go.GetComponent<Renderer>(), darkCeiling);
         var col = go.GetComponent<Collider>();
         if (col != null) Destroy(col);
         spawnedObjects.Add(go);
+    }
+
+    private static void SetMaterialColor(Renderer renderer, Color color)
+    {
+        var mat = renderer.material;
+        mat.color = color;
+        // URP Lit shader uses _BaseColor instead of _Color
+        if (mat.HasProperty("_BaseColor"))
+            mat.SetColor("_BaseColor", color);
     }
 
     private List<BossEncounter> FindBossEncountersInSpawned()
