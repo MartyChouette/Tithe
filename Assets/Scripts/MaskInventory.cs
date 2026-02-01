@@ -15,6 +15,12 @@ public class MaskInventory : MonoBehaviour
         {
             collectedMasks.Add(mask);
 
+            if (playerStats == null)
+            {
+                Debug.LogError("[MaskInventory] playerStats is not assigned.", this);
+                return;
+            }
+
             if (collectedMasks.Count == 1)
                 playerStats.EquipMask(mask);
         }
@@ -22,12 +28,22 @@ public class MaskInventory : MonoBehaviour
 
     public void EquipMask(int index)
     {
+        if (playerStats == null)
+        {
+            Debug.LogError("[MaskInventory] playerStats is not assigned.", this);
+            return;
+        }
         if (index >= 0 && index < collectedMasks.Count)
             playerStats.EquipMask(collectedMasks[index]);
     }
 
     public void EquipMask(MaskData mask)
     {
+        if (playerStats == null)
+        {
+            Debug.LogError("[MaskInventory] playerStats is not assigned.", this);
+            return;
+        }
         if (collectedMasks.Contains(mask))
             playerStats.EquipMask(mask);
     }

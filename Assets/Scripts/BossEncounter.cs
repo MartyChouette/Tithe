@@ -17,6 +17,12 @@ public class BossEncounter : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         if (GameManager.Instance.State != GameState.Exploring) return;
 
+        if (bossMask == null)
+        {
+            Debug.LogError("[BossEncounter] bossMask is not assigned.", this);
+            return;
+        }
+
         GameManager.Instance.SetActiveBossEncounter(this);
         GameManager.Instance.StartBossCombat(bossMask);
     }

@@ -20,7 +20,18 @@ public class GameManager : MonoBehaviour
 
     public GameState State { get; private set; }
     public int CurrentFloorIndex { get; private set; }
-    public FloorData CurrentFloor => floors[CurrentFloorIndex];
+    public FloorData CurrentFloor
+    {
+        get
+        {
+            if (floors == null || CurrentFloorIndex < 0 || CurrentFloorIndex >= floors.Length)
+            {
+                Debug.LogError("[GameManager] CurrentFloor: index out of bounds or floors array is null.");
+                return null;
+            }
+            return floors[CurrentFloorIndex];
+        }
+    }
 
     private BossEncounter activeBossEncounter;
 
@@ -36,6 +47,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        if (floors == null || floors.Length == 0)
+        {
+            Debug.LogError("[GameManager] floors array is null or empty. Cannot start game.");
+            return;
+        }
         State = GameState.Exploring;
         hud.SetVisible(true);
     }
