@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,10 +21,12 @@ public class CombatUI : MonoBehaviour
     [Header("Move Buttons")]
     [SerializeField] private Button[] moveButtons;
     [SerializeField] private Text[] moveButtonTexts;
+    [SerializeField] private Button moveBackButton;
 
     [Header("Target Buttons")]
     [SerializeField] private Button[] targetButtons;
     [SerializeField] private Text[] targetButtonTexts;
+    [SerializeField] private Button targetBackButton;
 
     [Header("References")]
     [SerializeField] private CombatManager combatManager;
@@ -60,7 +63,19 @@ public class CombatUI : MonoBehaviour
     // Wire to Flee button OnClick
     public void OnFleePressed()
     {
-        combatManager.OnPlayerFlee();
+        bool fled = combatManager.OnPlayerFlee();
+        if (!fled)
+        {
+            actionMenuPanel.SetActive(false);
+            ShowMessage("Can't flee from this.");
+            StartCoroutine(ReturnToActionMenuAfterDelay(1f));
+        }
+    }
+
+    private IEnumerator ReturnToActionMenuAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ShowActionMenu();
     }
 
     private void ShowMoveList()
@@ -83,6 +98,18 @@ public class CombatUI : MonoBehaviour
                 moveButtons[i].gameObject.SetActive(false);
             }
         }
+
+        if (moveBackButton != null)
+        {
+            moveBackButton.onClick.RemoveAllListeners();
+            moveBackButton.onClick.AddListener(OnMoveBackPressed);
+        }
+    }
+
+    private void OnMoveBackPressed()
+    {
+        moveListPanel.SetActive(false);
+        ShowActionMenu();
     }
 
     private void OnMoveSelected(MoveData move)
@@ -106,21 +133,38 @@ public class CombatUI : MonoBehaviour
         targetPanel.SetActive(true);
         var enemies = combatManager.Enemies;
 
-        for (int i = 0; i < targetButtons.Length; i++)
+        // Compact alive enemies into sequential button slots
+        int slot = 0;
+        for (int i = 0; i < enemies.Count; i++)
         {
-            if (i < enemies.Count && !enemies[i].IsDead)
-            {
-                targetButtons[i].gameObject.SetActive(true);
-                targetButtonTexts[i].text = enemies[i].name;
-                int index = i;
-                targetButtons[i].onClick.RemoveAllListeners();
-                targetButtons[i].onClick.AddListener(() => OnTargetSelected(index));
-            }
-            else
-            {
-                targetButtons[i].gameObject.SetActive(false);
-            }
+            if (enemies[i].IsDead) continue;
+            if (slot >= targetButtons.Length) break;
+
+            targetButtons[slot].gameObject.SetActive(true);
+            targetButtonTexts[slot].text = enemies[i].name;
+            int enemyIndex = i;
+            targetButtons[slot].onClick.RemoveAllListeners();
+            targetButtons[slot].onClick.AddListener(() => OnTargetSelected(enemyIndex));
+            slot++;
         }
+
+        // Hide remaining slots
+        for (int i = slot; i < targetButtons.Length; i++)
+        {
+            targetButtons[i].gameObject.SetActive(false);
+        }
+
+        if (targetBackButton != null)
+        {
+            targetBackButton.onClick.RemoveAllListeners();
+            targetBackButton.onClick.AddListener(OnTargetBackPressed);
+        }
+    }
+
+    private void OnTargetBackPressed()
+    {
+        targetPanel.SetActive(false);
+        ShowMoveList();
     }
 
     private void OnTargetSelected(int index)
@@ -137,9 +181,11 @@ public class CombatUI : MonoBehaviour
             : "No Mask";
     }
 
-    public void ShowDamage(int amount, bool effective, int targetIndex)
+    public void ShowDamage(int amount, float multiplier, int targetIndex)
     {
-        string suffix = effective ? " WEAK!" : "";
+        string suffix = "";
+        if (multiplier > 1f) suffix = " WEAK!";
+        else if (multiplier < 1f) suffix = " RESIST";
         ShowMessage($"{amount}{suffix}");
     }
 

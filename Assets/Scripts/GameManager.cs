@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     public int CurrentFloorIndex { get; private set; }
     public FloorData CurrentFloor => floors[CurrentFloorIndex];
 
+    private BossEncounter activeBossEncounter;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -35,11 +37,18 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         State = GameState.Exploring;
+        hud.SetVisible(true);
+    }
+
+    public void SetActiveBossEncounter(BossEncounter encounter)
+    {
+        activeBossEncounter = encounter;
     }
 
     public void StartCombat(EnemyData[] enemies)
     {
         State = GameState.Combat;
+        hud.SetVisible(false);
         playerController.enabled = false;
         combatManager.BeginCombat(enemies);
     }
@@ -47,6 +56,7 @@ public class GameManager : MonoBehaviour
     public void StartBossCombat(MaskData boss)
     {
         State = GameState.Combat;
+        hud.SetVisible(false);
         playerController.enabled = false;
         combatManager.BeginBossCombat(boss);
     }
@@ -54,6 +64,7 @@ public class GameManager : MonoBehaviour
     public void EndCombat(bool victory)
     {
         State = GameState.Exploring;
+        hud.SetVisible(true);
         playerController.enabled = true;
         if (victory)
             hud.Refresh();
@@ -62,6 +73,11 @@ public class GameManager : MonoBehaviour
     public void BossDefeated(MaskData mask)
     {
         maskInventory.AddMask(mask);
+        if (activeBossEncounter != null)
+        {
+            activeBossEncounter.OnBossDefeated();
+            activeBossEncounter = null;
+        }
         EndCombat(true);
     }
 
@@ -70,6 +86,7 @@ public class GameManager : MonoBehaviour
         if (CurrentFloorIndex < floors.Length - 1)
         {
             CurrentFloorIndex++;
+            playerStats.FullHeal();
             hud.Refresh();
             // TODO: load or activate next floor layout
         }
@@ -78,6 +95,7 @@ public class GameManager : MonoBehaviour
     public void PlayerDefeated()
     {
         State = GameState.Paused;
+        hud.SetVisible(false);
         // TODO: game over screen
     }
 }

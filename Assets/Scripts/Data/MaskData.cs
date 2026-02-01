@@ -25,4 +25,5 @@ public class MaskData : ScriptableObject
     public int bonusAttack;
     public int bonusDefense;
     public int bonusSpeed;
+    public int bonusHP;
 }

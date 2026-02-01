@@ -7,8 +7,8 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private int baseDefense = 10;
     [SerializeField] private int baseSpeed = 10;
 
-    public int MaxHP => baseMaxHP;
-    public int CurrentHP { get; set; }
+    public int MaxHP => baseMaxHP + (EquippedMask != null ? EquippedMask.bonusHP : 0);
+    public int CurrentHP { get; private set; }
     public int Attack => baseAttack + (EquippedMask != null ? EquippedMask.bonusAttack : 0);
     public int Defense => baseDefense + (EquippedMask != null ? EquippedMask.bonusDefense : 0);
     public int Speed => baseSpeed + (EquippedMask != null ? EquippedMask.bonusSpeed : 0);
@@ -24,6 +24,8 @@ public class PlayerStats : MonoBehaviour
     public void EquipMask(MaskData mask)
     {
         EquippedMask = mask;
+        if (CurrentHP > MaxHP)
+            CurrentHP = MaxHP;
     }
 
     public MoveData[] GetAvailableMoves()
@@ -41,5 +43,10 @@ public class PlayerStats : MonoBehaviour
     public void Heal(int amount)
     {
         CurrentHP = Mathf.Min(MaxHP, CurrentHP + amount);
+    }
+
+    public void FullHeal()
+    {
+        CurrentHP = MaxHP;
     }
 }

@@ -9,15 +9,14 @@ public class HUD : MonoBehaviour
     [SerializeField] private Text floorText;
     [SerializeField] private PlayerStats playerStats;
 
-    void Update()
+    public void SetVisible(bool visible)
     {
-        bool exploring = GameManager.Instance != null &&
-                         GameManager.Instance.State == GameState.Exploring;
-        hudPanel.SetActive(exploring);
+        hudPanel.SetActive(visible);
     }
 
     public void Refresh()
     {
+        hudPanel.SetActive(true);
         hpText.text = $"HP: {playerStats.CurrentHP}/{playerStats.MaxHP}";
         maskText.text = playerStats.EquippedMask != null
             ? playerStats.EquippedMask.maskName
