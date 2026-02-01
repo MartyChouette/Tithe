@@ -74,6 +74,14 @@ public class CombatManager : MonoBehaviour
     [SerializeField] private EnemyDisplay enemyDisplay;
     [SerializeField] private MaskAttackAnimator maskAttackAnimator;
 
+    public void Initialize(PlayerStats stats, CombatUI ui, EnemyDisplay display, MaskAttackAnimator animator)
+    {
+        playerStats = stats;
+        combatUI = ui;
+        enemyDisplay = display;
+        maskAttackAnimator = animator;
+    }
+
     public CombatState State { get; private set; }
     public List<CombatEnemy> Enemies { get; private set; } = new List<CombatEnemy>();
 

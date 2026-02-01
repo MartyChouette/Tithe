@@ -11,31 +11,75 @@ public class MockLevelGenerator
     {
         EnsureDirectory(OutputPath);
 
-        // --- Moves ---
+        // ===== Shared Moves =====
         var slash = CreateMove("Slash", 15, Element.None, TargetType.Single, "A basic slash attack.");
+        var heavySlash = CreateMove("Heavy Slash", 20, Element.None, TargetType.Single, "A powerful melee strike.");
+
+        // ===== Floor 1: Ember Crypt (Fire) =====
         var fireball = CreateMove("Fireball", 20, Element.Fire, TargetType.All, "Hurls a ball of fire at all enemies.");
-        var frostLance = CreateMove("Frost Lance", 22, Element.Ice, TargetType.Single, "A piercing lance of ice.");
-        var spark = CreateMove("Spark", 18, Element.Shock, TargetType.Single, "A quick jolt of electricity.");
-        var shadowBolt = CreateMove("Shadow Bolt", 25, Element.Dark, TargetType.Single, "A bolt of dark energy.");
-        var holyLight = CreateMove("Holy Light", 20, Element.Light, TargetType.All, "A wave of purifying light.");
+        var flameWhip = CreateMove("Flame Whip", 18, Element.Fire, TargetType.Single, "Lashes out with a whip of flame.");
+        var emberShower = CreateMove("Ember Shower", 16, Element.Fire, TargetType.All, "A rain of burning embers.");
 
-        // --- Enemies ---
-        var fireImp = CreateEnemy("Fire Imp", Element.Fire, 45, 12, 6, 10,
+        var emberWraith = CreateEnemy("Ember Wraith", Element.Fire, 30, 10, 6, 10,
+            new MoveData[] { flameWhip, slash });
+        var cinder_Imp = CreateEnemy("Cinder Imp", Element.Fire, 35, 12, 5, 12,
             new MoveData[] { fireball, slash });
-        var frostSprite = CreateEnemy("Frost Sprite", Element.Ice, 40, 10, 8, 14,
+        var lavaCrawler = CreateEnemy("Lava Crawler", Element.Fire, 45, 14, 8, 8,
+            new MoveData[] { emberShower, heavySlash });
+
+        var infernoMask = CreateBossMask("Inferno Mask", Element.Fire, 100, 16, 10, 12,
+            new MoveData[] { fireball, flameWhip, heavySlash },
+            bonusAttack: 4, bonusDefense: 2, bonusSpeed: 1, bonusHP: 15);
+
+        var floor1 = CreateFloor("Ember Crypt", 1, 0.25f,
+            new EnemyData[] { emberWraith, cinder_Imp, lavaCrawler },
+            infernoMask);
+
+        // ===== Floor 2: Frozen Cavern (Ice) =====
+        var frostLance = CreateMove("Frost Lance", 22, Element.Ice, TargetType.Single, "A piercing lance of ice.");
+        var blizzard = CreateMove("Blizzard", 18, Element.Ice, TargetType.All, "A freezing gale hits all enemies.");
+        var iceShards = CreateMove("Ice Shards", 20, Element.Ice, TargetType.Single, "Sharp shards of ice impale the target.");
+
+        var frostSprite = CreateEnemy("Frost Sprite", Element.Ice, 40, 14, 8, 14,
             new MoveData[] { frostLance, slash });
-        var shockBeetle = CreateEnemy("Shock Beetle", Element.Shock, 50, 14, 10, 8,
-            new MoveData[] { spark, slash });
+        var glacialGolem = CreateEnemy("Glacial Golem", Element.Ice, 65, 16, 12, 6,
+            new MoveData[] { iceShards, heavySlash });
+        var snowWraith = CreateEnemy("Snow Wraith", Element.Ice, 50, 18, 7, 10,
+            new MoveData[] { blizzard, frostLance });
 
-        // --- Boss Mask ---
-        var shadowKing = CreateBossMask("Shadow King", Element.Dark, 120, 18, 12, 11,
-            new MoveData[] { shadowBolt, holyLight, slash },
-            bonusAttack: 5, bonusDefense: 3, bonusSpeed: 2, bonusHP: 20);
+        var glacialMask = CreateBossMask("Glacial Mask", Element.Ice, 150, 20, 14, 10,
+            new MoveData[] { blizzard, frostLance, heavySlash },
+            bonusAttack: 3, bonusDefense: 5, bonusSpeed: 0, bonusHP: 25);
 
-        // --- Floor ---
-        CreateFloor("Sunken Crypt", 1, 0.3f,
-            new EnemyData[] { fireImp, frostSprite, shockBeetle },
-            shadowKing);
+        var floor2 = CreateFloor("Frozen Cavern", 2, 0.30f,
+            new EnemyData[] { frostSprite, glacialGolem, snowWraith },
+            glacialMask);
+
+        // ===== Floor 3: Dark Sanctum (Dark) =====
+        var shadowBolt = CreateMove("Shadow Bolt", 25, Element.Dark, TargetType.Single, "A bolt of dark energy.");
+        var voidPulse = CreateMove("Void Pulse", 22, Element.Dark, TargetType.All, "A wave of darkness engulfs all.");
+        var darkCleave = CreateMove("Dark Cleave", 28, Element.Dark, TargetType.Single, "A devastating dark-infused strike.");
+
+        var shadowFiend = CreateEnemy("Shadow Fiend", Element.Dark, 55, 18, 10, 14,
+            new MoveData[] { shadowBolt, slash });
+        var voidStalker = CreateEnemy("Void Stalker", Element.Dark, 70, 20, 8, 16,
+            new MoveData[] { voidPulse, darkCleave });
+        var abyssalKnight = CreateEnemy("Abyssal Knight", Element.Dark, 90, 24, 14, 10,
+            new MoveData[] { darkCleave, shadowBolt });
+
+        var abyssalMask = CreateBossMask("Abyssal Mask", Element.Dark, 220, 26, 16, 14,
+            new MoveData[] { voidPulse, darkCleave, shadowBolt },
+            bonusAttack: 7, bonusDefense: 5, bonusSpeed: 3, bonusHP: 30);
+
+        var floor3 = CreateFloor("Dark Sanctum", 3, 0.35f,
+            new EnemyData[] { shadowFiend, voidStalker, abyssalKnight },
+            abyssalMask);
+
+        // ===== Starter Mask =====
+        var flash = CreateMove("Flash", 18, Element.Light, TargetType.All, "A burst of blinding light.");
+        CreateStarterMask("Initiate's Mask", Element.Light,
+            new MoveData[] { slash, flash },
+            bonusAttack: 2, bonusDefense: 2, bonusSpeed: 0, bonusHP: 10);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -94,6 +138,25 @@ public class MockLevelGenerator
         mask.attack = atk;
         mask.defense = def;
         mask.speed = spd;
+        mask.moves = moves;
+        mask.bonusAttack = bonusAttack;
+        mask.bonusDefense = bonusDefense;
+        mask.bonusSpeed = bonusSpeed;
+        mask.bonusHP = bonusHP;
+        AssetDatabase.CreateAsset(mask, $"{OutputPath}/{name.Replace(" ", "")}.asset");
+        return mask;
+    }
+
+    private static MaskData CreateStarterMask(string name, Element element,
+        MoveData[] moves, int bonusAttack, int bonusDefense, int bonusSpeed, int bonusHP)
+    {
+        var mask = ScriptableObject.CreateInstance<MaskData>();
+        mask.maskName = name;
+        mask.element = element;
+        mask.maxHP = 0;
+        mask.attack = 0;
+        mask.defense = 0;
+        mask.speed = 0;
         mask.moves = moves;
         mask.bonusAttack = bonusAttack;
         mask.bonusDefense = bonusDefense;

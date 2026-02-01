@@ -11,6 +11,12 @@ public class FloorExit : MonoBehaviour
 
     private bool isLocked = true;
 
+    public void Setup(GameObject locked, GameObject unlocked)
+    {
+        lockedVisual = locked;
+        unlockedVisual = unlocked;
+    }
+
     void Start()
     {
         UpdateVisuals();

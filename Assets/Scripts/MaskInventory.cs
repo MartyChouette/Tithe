@@ -9,6 +9,11 @@ public class MaskInventory : MonoBehaviour
 
     public IReadOnlyList<MaskData> CollectedMasks => collectedMasks;
 
+    public void Initialize(PlayerStats stats)
+    {
+        playerStats = stats;
+    }
+
     public void AddMask(MaskData mask)
     {
         if (!collectedMasks.Contains(mask))

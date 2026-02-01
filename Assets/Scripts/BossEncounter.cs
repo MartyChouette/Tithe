@@ -11,6 +11,12 @@ public class BossEncounter : MonoBehaviour
 
     private bool defeated;
 
+    public void Setup(MaskData mask, FloorExit exit)
+    {
+        bossMask = mask;
+        floorExit = exit;
+    }
+
     void OnTriggerEnter(Collider other)
     {
         if (defeated) return;

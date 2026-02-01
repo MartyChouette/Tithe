@@ -7,6 +7,12 @@ public class EnemyDisplay : MonoBehaviour
     [SerializeField] private Image[] enemySlots;
     [SerializeField] private Text[] enemyHPTexts;
 
+    public void Initialize(Image[] slots, Text[] hpTexts)
+    {
+        enemySlots = slots;
+        enemyHPTexts = hpTexts;
+    }
+
     public void ShowEnemies(List<CombatEnemy> enemies)
     {
         for (int i = 0; i < enemySlots.Length; i++)
