@@ -43,6 +43,7 @@ public class MaskAttackAnimator : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
+            if (activeMaskInstance == null) yield break;
             t += Time.deltaTime * attackSpeed;
             activeMaskInstance.transform.position = Vector3.Lerp(startPos, targetPos, t);
             yield return null;
@@ -54,11 +55,13 @@ public class MaskAttackAnimator : MonoBehaviour
         t = 0f;
         while (t < 1f)
         {
+            if (activeMaskInstance == null) yield break;
             t += Time.deltaTime * returnSpeed;
             activeMaskInstance.transform.position = Vector3.Lerp(targetPos, startPos, t);
             yield return null;
         }
 
-        activeMaskInstance.transform.position = startPos;
+        if (activeMaskInstance != null)
+            activeMaskInstance.transform.position = startPos;
     }
 }

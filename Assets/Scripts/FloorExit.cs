@@ -31,6 +31,7 @@ public class FloorExit : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (isLocked) return;
+        if (!other.CompareTag("Player")) return;
         if (GameManager.Instance.State != GameState.Exploring) return;
 
         GameManager.Instance.DescendToNextFloor();
