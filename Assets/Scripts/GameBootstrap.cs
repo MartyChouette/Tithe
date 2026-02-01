@@ -436,6 +436,123 @@ public class GameBootstrap : MonoBehaviour
             field.SetValue(target, value);
     }
 
+    // ===== Placeholder art helpers =====
+    private (Color fill, Color border) GetElementColor(Element element)
+    {
+        switch (element)
+        {
+            case Element.Fire:  return (new Color(1f, 0.45f, 0.15f), new Color(0.55f, 0.1f, 0.05f));
+            case Element.Ice:   return (new Color(0.55f, 0.8f, 1f),  new Color(0.1f, 0.15f, 0.45f));
+            case Element.Dark:  return (new Color(0.6f, 0.3f, 0.8f), new Color(0.25f, 0.1f, 0.35f));
+            case Element.Light: return (new Color(1f, 0.95f, 0.5f),  new Color(0.7f, 0.55f, 0.1f));
+            default:            return (new Color(0.6f, 0.6f, 0.6f), new Color(0.25f, 0.25f, 0.25f));
+        }
+    }
+
+    private Sprite CreatePlaceholderSprite(string label, Color fill, Color border)
+    {
+        const int size = 64;
+        const int bw = 3; // border width
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Point;
+
+        var pixels = new Color[size * size];
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+                pixels[y * size + x] = (x < bw || x >= size - bw || y < bw || y >= size - bw) ? border : fill;
+
+        // Draw first letter as a simple 5x7 block pattern centered
+        char letter = label.Length > 0 ? char.ToUpper(label[0]) : '?';
+        bool[,] glyph = GetLetterGlyph(letter);
+        int gw = glyph.GetLength(1), gh = glyph.GetLength(0);
+        int ox = (size - gw * 3) / 2, oy = (size - gh * 3) / 2;
+        for (int gy = 0; gy < gh; gy++)
+            for (int gx = 0; gx < gw; gx++)
+                if (glyph[gy, gx])
+                    for (int py = 0; py < 3; py++)
+                        for (int px = 0; px < 3; px++)
+                        {
+                            int fx = ox + gx * 3 + px;
+                            int fy = oy + (gh - 1 - gy) * 3 + py;
+                            if (fx >= 0 && fx < size && fy >= 0 && fy < size)
+                                pixels[fy * size + fx] = border;
+                        }
+
+        tex.SetPixels(pixels);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 64);
+    }
+
+    private bool[,] GetLetterGlyph(char c)
+    {
+        // Minimal 5x7 pixel font for common starting letters
+        switch (c)
+        {
+            case 'E': return new bool[,] {
+                {true,true,true,true,true},{true,false,false,false,false},{true,false,false,false,false},
+                {true,true,true,true,false},{true,false,false,false,false},{true,false,false,false,false},
+                {true,true,true,true,true}};
+            case 'C': return new bool[,] {
+                {false,true,true,true,false},{true,false,false,false,true},{true,false,false,false,false},
+                {true,false,false,false,false},{true,false,false,false,false},{true,false,false,false,true},
+                {false,true,true,true,false}};
+            case 'L': return new bool[,] {
+                {true,false,false,false,false},{true,false,false,false,false},{true,false,false,false,false},
+                {true,false,false,false,false},{true,false,false,false,false},{true,false,false,false,false},
+                {true,true,true,true,true}};
+            case 'F': return new bool[,] {
+                {true,true,true,true,true},{true,false,false,false,false},{true,false,false,false,false},
+                {true,true,true,true,false},{true,false,false,false,false},{true,false,false,false,false},
+                {true,false,false,false,false}};
+            case 'G': return new bool[,] {
+                {false,true,true,true,false},{true,false,false,false,true},{true,false,false,false,false},
+                {true,false,true,true,true},{true,false,false,false,true},{true,false,false,false,true},
+                {false,true,true,true,false}};
+            case 'S': return new bool[,] {
+                {false,true,true,true,false},{true,false,false,false,true},{true,false,false,false,false},
+                {false,true,true,true,false},{false,false,false,false,true},{true,false,false,false,true},
+                {false,true,true,true,false}};
+            case 'V': return new bool[,] {
+                {true,false,false,false,true},{true,false,false,false,true},{true,false,false,false,true},
+                {true,false,false,false,true},{false,true,false,true,false},{false,true,false,true,false},
+                {false,false,true,false,false}};
+            case 'A': return new bool[,] {
+                {false,false,true,false,false},{false,true,false,true,false},{true,false,false,false,true},
+                {true,true,true,true,true},{true,false,false,false,true},{true,false,false,false,true},
+                {true,false,false,false,true}};
+            case 'I': return new bool[,] {
+                {true,true,true,true,true},{false,false,true,false,false},{false,false,true,false,false},
+                {false,false,true,false,false},{false,false,true,false,false},{false,false,true,false,false},
+                {true,true,true,true,true}};
+            default: return new bool[,] {
+                {false,true,true,true,false},{true,false,false,false,true},{false,false,false,true,false},
+                {false,false,true,false,false},{false,false,true,false,false},{false,false,false,false,false},
+                {false,false,true,false,false}};
+        }
+    }
+
+    private GameObject CreateMaskPrefab(string maskName, Color color)
+    {
+        var go = new GameObject(maskName + "_Model");
+        go.SetActive(false);
+
+        var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.transform.SetParent(go.transform, false);
+        sphere.transform.localScale = new Vector3(0.6f, 0.15f, 0.6f);
+
+        var renderer = sphere.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            var mat = new Material(renderer.sharedMaterial);
+            mat.color = color;
+            mat.SetColor("_Color", color);
+            mat.SetColor("_BaseColor", color); // URP compat
+            renderer.material = mat;
+        }
+
+        return go;
+    }
+
     // ===== ScriptableObject factory methods =====
     private MoveData CreateMove(string name, int power, Element element, TargetType target)
     {
@@ -459,6 +576,9 @@ public class GameBootstrap : MonoBehaviour
         enemy.speed = spd;
         enemy.moves = moves;
         enemy.name = name;
+
+        var (fill, border) = GetElementColor(element);
+        enemy.sprite = CreatePlaceholderSprite(name, fill, border);
         return enemy;
     }
 
@@ -478,6 +598,10 @@ public class GameBootstrap : MonoBehaviour
         mask.bonusSpeed = bonusSpd;
         mask.bonusHP = bonusHP;
         mask.name = name;
+
+        var (fill, border) = GetElementColor(element);
+        mask.bossSprite = CreatePlaceholderSprite(name, fill, border);
+        mask.modelPrefab = CreateMaskPrefab(name, fill);
         return mask;
     }
 
@@ -497,6 +621,10 @@ public class GameBootstrap : MonoBehaviour
         mask.bonusSpeed = bonusSpd;
         mask.bonusHP = bonusHP;
         mask.name = name;
+
+        var (fill, border) = GetElementColor(element);
+        mask.bossSprite = CreatePlaceholderSprite(name, fill, border);
+        mask.modelPrefab = CreateMaskPrefab(name, fill);
         return mask;
     }
 
